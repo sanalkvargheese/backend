@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-react-app-deployment
+  labels:
+    app: my-react-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-react-app
+  template:
+    metadata:
+      labels:
+        app: my-react-app
+    spec:
+      containers:
+      - name: my-react-app
+        image: gcr.io/ica2-3354/react-app:v10
+        ports:
+        - containerPort: 80
+        env:
+        - name: REACT_APP_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: REACT_APP_API_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-react-app-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-react-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
